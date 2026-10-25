@@ -1,0 +1,90 @@
+{
+  "building": {
+    "name": "Miniature Building Prototype",
+    "zones": [
+      {"id": "START", "label": "START", "type": "start", "x": 90, "y": 220},
+      {"id": "A", "label": "Zone A", "type": "zone", "x": 270, "y": 110},
+      {"id": "B", "label": "Zone B", "type": "zone", "x": 450, "y": 110},
+      {"id": "C", "label": "Zone C", "type": "zone", "x": 630, "y": 110},
+      {"id": "D", "label": "Zone D", "type": "zone", "x": 630, "y": 330},
+      {"id": "E", "label": "Zone E", "type": "zone", "x": 450, "y": 330},
+      {"id": "Corridor", "label": "Corridor", "type": "corridor", "x": 450, "y": 220},
+      {"id": "Ramp", "label": "Ramp", "type": "ramp", "x": 310, "y": 220},
+      {"id": "Stairs", "label": "Stairs", "type": "stairs", "x": 590, "y": 220},
+      {"id": "ExitA", "label": "Exit A", "type": "exit", "x": 90, "y": 330},
+      {"id": "ExitB", "label": "Exit B", "type": "exit", "x": 810, "y": 220}
+    ],
+    "edges": [
+      {"from": "START", "to": "A", "distance": 60, "accessible": true},
+      {"from": "A", "to": "ExitA", "distance": 90, "accessible": true},
+      {"from": "A", "to": "B", "distance": 100, "accessible": true},
+      {"from": "B", "to": "C", "distance": 100, "accessible": true},
+      {"from": "B", "to": "Corridor", "distance": 80, "accessible": true},
+      {"from": "C", "to": "D", "distance": 100, "accessible": true},
+      {"from": "C", "to": "Stairs", "distance": 60, "accessible": false},
+      {"from": "D", "to": "E", "distance": 100, "accessible": true},
+      {"from": "D", "to": "Ramp", "distance": 70, "accessible": true},
+      {"from": "E", "to": "Corridor", "distance": 80, "accessible": true},
+      {"from": "Corridor", "to": "Stairs", "distance": 50, "accessible": false},
+      {"from": "Corridor", "to": "Ramp", "distance": 60, "accessible": true},
+      {"from": "Stairs", "to": "ExitA", "distance": 80, "accessible": false},
+      {"from": "Ramp", "to": "ExitB", "distance": 100, "accessible": true}
+    ]
+  },
+  "node_zone_map": {
+    "NODE_01": "A",
+    "NODE_02": "B",
+    "NODE_03": "C",
+    "NODE_04": "D",
+    "NODE_05": "E",
+    "NODE_06": "Corridor"
+  },
+  "comms_topology": {
+    "gateway": "NODE_01",
+    "links": [
+      ["NODE_01", "NODE_02"],
+      ["NODE_01", "NODE_03"],
+      ["NODE_02", "NODE_04"],
+      ["NODE_02", "NODE_05"],
+      ["NODE_03", "NODE_06"]
+    ]
+  },
+  "thresholds": {
+    "temperature_normal_max": 27.0,
+    "temperature_watch_max": 31.0,
+    "temperature_restricted_min": 35.0,
+    "occupancy_normal_max": 2,
+    "occupancy_watch_max": 5,
+    "occupancy_restricted_min": 8,
+    "pressure_presence_min": 0.45,
+    "stale_seconds": 6,
+    "confidence_decay_per_second": 0.2
+  },
+  "risk_weights": {
+    "hazard_weight": 0.30,
+    "occupancy_weight": 0.25,
+    "congestion_weight": 0.20,
+    "confidence_weight": 0.15,
+    "accessibility_weight": 0.10
+  },
+  "risk_bands": [
+    {"max": 30, "label": "NORMAL"},
+    {"max": 60, "label": "WATCH"},
+    {"max": 80, "label": "HIGH RISK"},
+    {"max": 100, "label": "RESTRICTED"}
+  ],
+  "routing": {
+    "risk_cost_multiplier": 2.5,
+    "blocked_cost_penalty": 2000.0,
+    "uncertain_cost_penalty": 1200.0,
+    "accessible_preference_bonus": -0.6,
+    "stairs_penalty": 2000.0,
+    "exit_unavailable_penalty": 5000.0
+  },
+  "simulation": {
+    "heartbeat_interval_seconds": 1.0,
+    "sensor_update_interval_seconds": 1.0,
+    "risk_recompute_interval_seconds": 1.0,
+    "route_recompute_interval_seconds": 2.0
+  }
+}

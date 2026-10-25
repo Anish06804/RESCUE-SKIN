@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RESCUE SKIN — Distributed Physical AI for Adaptive Emergency Response</title>
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<!-- ============ HEADER ============ -->
+<header class="topbar">
+  <div class="brand">
+    <div class="brand-mark">RS</div>
+    <div class="brand-text">
+      <div class="brand-name">RESCUE SKIN</div>
+      <div class="brand-sub">Distributed Physical AI for Adaptive Emergency Response</div>
+      <div class="brand-id">VK26-IITH-SC-0046 &bull; Sustainable Cities &bull; Smart Urban Infrastructure</div>
+    </div>
+  </div>
+  <div class="mode-badge" id="modeBadge">SIMULATION MODE</div>
+  <div class="mode-note" id="modeNote">No real hardware connected — software prototype</div>
+</header>
+
+<div class="disclaimer" id="disclaimer">
+  RESCUE SKIN is a student research prototype demonstrated using controlled, non-hazardous simulations.
+  It is not a certified life-safety system.
+</div>
+
+<!-- ============ MAIN LAYOUT ============ -->
+<main class="grid">
+
+  <!-- LEFT: BUILDING MAP -->
+  <section class="panel map-panel">
+    <div class="panel-header">
+      <span class="panel-title">LIVE BUILDING MAP</span>
+      <span class="pill" id="mapLegendState">—</span>
+    </div>
+    <div class="map-wrap">
+      <svg id="mapSvg" class="map-svg" viewBox="0 0 860 420" preserveAspectRatio="xMidYMid meet">
+        <defs>
+          <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+            <polygon fill="#cf6520" points="0 0, 10 3.5, 0 7"></polygon>
+          </marker>
+          <filter id="glow">
+            <feGaussianBlur stdDeviation="2.5" result="coloredBlur"/>
+            <feMerge>
+              <feMergeNode in="coloredBlur"/>
+              <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+          </filter>
+        </defs>
+
+        <!-- edges (drawn behind zones) -->
+        <g id="edgesLayer"></g>
+
+        <!-- zones -->
+        <g id="zonesLayer"></g>
+
+        <!-- route path -->
+        <g id="routeLayer">
+          <polyline id="routePath" class="route-path" fill="none" stroke="#22d3ee" stroke-width="4"
+                    stroke-dasharray="14" stroke-dashoffset="14" points="" />
+          <circle id="routeHead" class="route-head" r="7" fill="#22d3ee" cx="0" cy="0" />
+        </g>
+      </svg>
+
+      <div class="map-legend">
+        <div class="leg-item"><span class="leg-dot normal"></span>Normal</div>
+        <div class="leg-item"><span class="leg-dot watch"></span>Watch</div>
+        <div class="leg-item"><span class="leg-dot high"></span>High Risk</div>
+        <div class="leg-item"><span class="leg-dot restricted"></span>Restricted</div>
+        <div class="leg-item"><span class="leg-dot uncertain"></span>Uncertain / Stale</div>
+        <div class="leg-item"><span class="leg-dot route"></span>Route</div>
+        <div class="leg-item"><span class="leg-dot exit"></span>Exit</div>
+      </div>
+    </div>
+
+    <div class="hint" id="mapHint">Select a zone to view details.</div>
+  </section>
+
+  <!-- CENTER: LIVE ROUTE -->
+  <section class="panel route-panel">
+    <div class="panel-header">
+      <span class="panel-title">LIVE ROUTE</span>
+      <button class="btn-outline small" id="btnRecompute">Recalculate</button>
+    </div>
+
+    <div class="route-card">
+      <div class="route-line">
+        <span class="route-label">Current route</span>
+        <span class="route-value" id="routeValue">—</span>
+        <span class="route-chip" id="routeExitChip">—</span>
+      </div>
+      <div class="route-metrics">
+        <div class="met"><div class="met-val" id="metDist">—</div><div class="met-cap">Distance</div></div>
+        <div class="met"><div class="met-val" id="metRisk">—</div><div class="met-cap">Cumulative risk</div></div>
+        <div class="met"><div class="met-val" id="metAlgo">—</div><div class="met-cap">Algorithm</div></div>
+      </div>
+
+      <div class="route-sections">
+        <div class="sec">
+          <div class="sec-head">Previous route</div>
+          <div class="sec-body" id="prevRoute">—</div>
+        </div>
+        <div class="sec">
+          <div class="sec-head">New route</div>
+          <div class="sec-body" id="newRoute">—</div>
+        </div>
+      </div>
+
+      <div class="route-why">
+        <div class="sec-head">Why the route changed</div>
+        <div class="sec-body" id="routeWhy">No recalculation yet.</div>
+      </div>
+
+      <div class="guidance">
+        <div class="guid-item"><span class="guid-led">LED</span> <span id="guidLed">ACTIVE — path lit</span></div>
+        <div class="guid-item"><span class="guid-audio">AUDIO</span> <span id="guidAudio">—</span></div>
+        <div class="guid-item"><span class="guid-haptic">HAPTIC</span> <span id="guidHaptic">—</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- RIGHT: SYSTEM STATUS -->
+  <section class="panel status-panel">
+    <div class="panel-header">
+      <span class="panel-title">SYSTEM STATUS</span>
+      <span class="pill ok" id="sysPill">ONLINE</span>
+    </div>
+
+    <div class="status-grid">
+      <div class="stat">
+        <div class="stat-val" id="statMode">—</div>
+        <div class="stat-cap">Mode</div>
+      </div>
+      <div class="stat">
+        <div class="stat-val" id="statProfile">—</div>
+        <div class="stat-cap">Routing profile</div>
+      </div>
+      <div class="stat">
+        <div class="stat-val" id="statNodes">—</div>
+        <div class="stat-cap">Nodes online</div>
+      </div>
+      <div class="stat">
+        <div class="stat-val" id="statLinks">—</div>
+        <div class="stat-cap">Comms links up</div>
+      </div>
+      <div class="stat">
+        <div class="stat-val" id="statRestricted">0</div>
+        <div class="stat-cap">Restricted zones</div>
+      </div>
+      <div class="stat">
+        <div class="stat-val" id="statUncertain">0</div>
+        <div class="stat-cap">Uncertain zones</div>
+      </div>
+    </div>
+
+    <div class="comm-vis" id="commVis">
+      <div class="comm-title">Communication topology</div>
+      <svg id="commSvg" class="comm-svg" viewBox="0 0 260 160" preserveAspectRatio="xMidYMid meet"></svg>
+    </div>
+
+    <div class="perf" id="perfBlock">
+      <div class="perf-title">Performance targets vs measured</div>
+      <div class="perf-row"><span>Route recalculation</span><span id="perfRouteTarget">target: 1–2 s</span><span id="perfRouteMeasured">measured: NOT YET MEASURED</span></div>
+      <div class="perf-row"><span>Dashboard updates</span><span id="perfDashTarget">target: smooth (1 s)</span><span id="perfDashMeasured">measured: NOT YET MEASURED</span></div>
+      <div class="perf-row"><span>Heartbeat</span><span id="perfHbTarget">target: ~1 s</span><span id="perfHbMeasured">measured: NOT YET MEASURED</span></div>
+      <div class="perf-row"><span>Guidance modalities</span><span id="perfGuidTarget">target: 3</span><span id="perfGuidMeasured">measured: visual, audio, haptic (sim)</span></div>
+    </div>
+
+    <div class="comm-vis">
+      <div class="comm-title">Manual simulation controls</div>
+      <div style="display:flex; gap:6px; flex-wrap:wrap;">
+        <button class="btn-outline small" id="btnHazard">Hazard: Zone C</button>
+        <button class="btn-outline small" id="btnOccupancy">Occupancy +3: Zone C</button>
+        <button class="btn-outline small" id="btnLinkFail">Link fail: N01-N02</button>
+        <button class="btn-outline small" id="btnLinkRestore">Restore all</button>
+      </div>
+      <div style="margin-top:6px; display:flex; gap:8px; align-items:center;">
+        <span style="font-family:var(--mono);font-size:9px;color:var(--text-dim);">Routing profile:</span>
+        <select id="selProfile" style="font-family:var(--mono);font-size:9px;background:#0b1020;color:var(--text);border:1px solid var(--panel-border);border-radius:3px;padding:2px 6px;">
+          <option value="STANDARD">STANDARD</option>
+          <option value="ACCESSIBLE">ACCESSIBLE (wheelchair)</option>
+        </select>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ============ BOTTOM: SENSOR TELEMETRY ============ -->
+<section class="panel tele-panel">
+  <div class="panel-header">
+    <span class="panel-title">SENSOR TELEMETRY</span>
+    <span class="pill" id="teleCount">0 nodes</span>
+  </div>
+  <div class="table-wrap">
+    <table id="teleTable">
+      <thead>
+        <tr>
+          <th>Node</th><th>Zone</th><th>Online</th><th>Comms</th><th>Health</th>
+          <th>Temp (°C)</th><th>Occupancy</th><th>Presence</th><th>Pressure</th><th>Proximity (m)</th><th>Updated</th>
+        </tr>
+      </thead>
+      <tbody id="teleTbody"></tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ============ EVENT LOG ============ -->
+<section class="panel events-panel">
+  <div class="panel-header">
+    <span class="panel-title">EVENT LOG</span>
+    <button class="btn-outline small" id="btnClearEvents">Clear</button>
+  </div>
+  <div id="eventList"></div>
+</section>
+
+<!-- ============ DEMO CONTROLS ============ -->
+<section class="panel demo-panel">
+  <div class="panel-header">
+    <span class="panel-title">COMPETITION DEMO</span>
+  </div>
+  <div class="demo-controls">
+    <button class="btn-primary big" id="btnStartDemo">START COMPETITION DEMO</button>
+    <button class="btn-secondary" id="btnPauseDemo">Pause</button>
+    <button class="btn-secondary" id="btnResetDemo">Reset</button>
+  </div>
+  <div class="demo-progress-wrap">
+    <div class="demo-progress-label">Demo progress</div>
+    <div class="demo-progress-track"><div id="demoProgress" class="demo-progress-bar"></div></div>
+    <div id="demoStepText">Idle</div>
+  </div>
+  <div class="demo-hints" id="demoHints">
+    <div class="hint-line">8-step scenario: Normal &rarr; Occupancy &rarr; Hazard &rarr; Detection &rarr; Restricted &rarr; Exit A down &rarr; Reroute to Exit B &rarr; Link failure &rarr; Accessibility &rarr; Recovery</div>
+  </div>
+</section>
+
+<script src="/js/app.js"></script>
+</body>
+</html>

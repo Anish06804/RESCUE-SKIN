@@ -1,0 +1,15 @@
+# RESCUE SKIN - Stage 2 Engineering Prototype
+# Core runtime
+fastapi>=0.100.0,<0.150.0
+uvicorn>=0.20.0,<0.22.0
+pydantic>=2.0.0,<3.0.0
+python-multipart>=0.0.9
+# WebSocket server support for the real-time dashboard
+websockets>=12.0
+
+# Optional hardware-mode dependencies (only needed when connecting real hardware):
+# adafruit-circuitpython-bme280
+# adafruit-circuitpython-vl53l0x
+# adafruit-circuitpython-drv2605
+# spidev
+# RPi.GPIO

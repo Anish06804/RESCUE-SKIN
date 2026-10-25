@@ -1,0 +1,1 @@
+"""RESCUE SKIN automated tests."""
